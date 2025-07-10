@@ -21,30 +21,32 @@
  * 
  * @return 0=成功、負の数=エラーコード
  */
-int send_command(int fd, const char *cmd) {
-    int len;
-    int retval;
-    
-    len = write(fd, cmd, strlen(cmd));
-    if (len < 0) {
-        retval = errno;
-        perror("write");
-        return -retval;
+int tlks_send_command(int fd, const char *cmd) {
+    size_t total = 0;
+    size_t length = strlen(cmd);
+
+    while (total < length) {
+        ssize_t written = write(fd, cmd + total, length - total);
+        if (written < 0) {
+            perror("write");
+            return -errno;
+        }
+        total += written;
     }
 
-    return len;
+    return (int)total;
 }
 
 /**
  * @brief シリアルからレスポンスを受ける関数
  * 
- * @param fd シリアルポートのファイルディスクリプタ
- * @param buf 受信したデータを格納するバッファ
- * @param buf_size バッファのサイズ
+ * @param[in] fd シリアルポートのファイルディスクリプタ
+ * @param[out] buf 受信したデータを格納するバッファ
+ * @param[in] buf_size バッファのサイズ
  * 
  * @return 0=成功、負の数=エラーコード
  */
-int read_response(int fd, char *buf, size_t buf_size) {
+int tlks_read_response(int fd, char *buf, size_t buf_size) {
     int len;
     int retval;
     
