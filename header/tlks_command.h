@@ -8,8 +8,10 @@
 
 #include <unistd.h>
 
-int send_command(int fd, const char *cmd);
+int tlks_send_command(int fd, const char *cmd);
 
-int read_response(int fd, char *buf, size_t buf_size);
+int tlks_read_response(int fd, char *buf, size_t buf_size);
+
+int tlks_read_signal(int fd, char *buf, size_t buf_size);
 
 #endif

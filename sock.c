@@ -19,8 +19,8 @@
  * @brief シリアルソケットを確保する関数
  * 
  * @param[out] fd シリアルソケットのファイルディスクリプタを格納するポインタ
- * @param[out] device_path シリアルデバイスのパスを格納するポインタ
- * @param[out] baudrate ボーレートを格納するポインタ
+ * @param[in] device_path シリアルデバイスのパスを格納するポインタ
+ * @param[in] baudrate ボーレートを格納するポインタ
  *
  * @return 0=成功, 負の数=エラーコード
  * 
@@ -44,9 +44,15 @@ int tlks_open_serialsock(int *fd, char *device_path, speed_t baudrate) {
         goto END;
     }
 
+    fcntl(*fd, F_SETFL, 0); 
+
     tcgetattr(*fd, &options);
+
     cfsetispeed(&options, baudrate);
     cfsetospeed(&options, baudrate);
+
+    options.c_cc[VMIN] = 1;   // 最低でも1バイト受信するまでブロック
+    options.c_cc[VTIME] = 0;  // タイムアウトなし（無限に待機）
 
     options.c_cflag |= (CLOCAL | CREAD); // ローカル接続と読み取りを有効にする
     options.c_cflag &= ~PARENB; // パリティビットを無効にする
@@ -56,6 +62,7 @@ int tlks_open_serialsock(int *fd, char *device_path, speed_t baudrate) {
 
     tcsetattr(*fd, TCSANOW, &options); // 設定を適用
     ioctl(*fd, TCSETS, &options); // シリアルポートの設定を適用
+
 
     return 0; // 成功
 
