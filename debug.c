@@ -27,9 +27,18 @@ int main(void) {
     printf("QRコードシリアル通信が初期化されました。fd=%d\n", fd);
 
     // コマンドを送信
-    tlks_send_command(fd, "ID2\r\n");
+    tlks_send_command(fd, TLKS_QK30_SP_SHORT);
+    usleep(100000); // 100ms待機
+    tlks_send_command(fd, TLKS_QK30_LED_BLUE_F);
 
-    tlks_read_signal(fd, buf, 256);
+    retval = tlks_read_signal(fd, buf, 256);
+    if (retval < 0) {
+        fprintf(stderr, "データ受信失敗: %d\n", retval);
+        tlks_close_serialsock(&fd);
+        return -1;
+    }
+
+    tlks_send_command(fd, TLKS_QK30_LED_GREEN_F);
 
     printf("受信: %s\n", buf);
 

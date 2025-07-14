@@ -9,5 +9,6 @@
 #include "tlks_sock.h"
 #include "tlks_setting.h"
 #include "tlks_command.h"
+#include "tlks_qk30_command.h"
 
 #endif
